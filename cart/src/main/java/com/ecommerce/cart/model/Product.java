@@ -1,10 +1,18 @@
 package com.ecommerce.cart.model;
 
-public class Product {
-    private Long id;
-	private String description;
-    private int amount;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
+public class Product {
+	@NotNull(message = "El ID del producto no puede ser nulo")
+    private Long id;
+
+    @NotBlank(message = "La descripción no puede estar vacía")
+    private String description;
+
+    @Min(value = 1, message = "La cantidad debe ser al menos 1")
+    private int amount;
     public Product() {}
 
     public Product(Long id, String description, int amount) {

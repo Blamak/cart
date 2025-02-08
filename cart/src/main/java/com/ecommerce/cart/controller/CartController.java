@@ -4,6 +4,8 @@ import com.ecommerce.cart.model.Cart;
 import com.ecommerce.cart.model.Product;
 import com.ecommerce.cart.service.CartService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +45,7 @@ public class CartController {
 
    
     @PostMapping("/{cartId}/product")
-    public ResponseEntity<String> addProductToCart(@PathVariable String cartId, @RequestBody Product product) {
+    public ResponseEntity<String> addProductToCart(@PathVariable String cartId, @Valid @RequestBody Product product) {
         boolean added = cartService.addProductToCart(cartId, product);
         if (added) {
             return ResponseEntity.ok("Producto agregado correctamente.");
