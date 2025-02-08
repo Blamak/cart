@@ -3,6 +3,8 @@ package com.ecommerce.cart.service;
 import com.ecommerce.cart.model.Cart;
 import com.ecommerce.cart.model.Product;
 import com.ecommerce.cart.repository.CartRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 @Service
 public class CartService {
 
+	private static final Logger logger = LoggerFactory.getLogger(CartService.class);
     private final CartRepository cartRepository;
 
     public CartService(CartRepository cartRepository) {
@@ -23,47 +26,72 @@ public class CartService {
 
     public Cart createCart() {
         String cartId = UUID.randomUUID().toString();
+        logger.info("Creando carrito carrito con ID: {}", cartId);
         Cart cart = new Cart(cartId);
         cartRepository.save(cart);
+        logger.info("Creado carrito con ID: {}", cartId);
         return cart;
     }
 
     public Optional<Cart> getCart(String cartId) {
+    	logger.debug("Buscando carrito con ID: {}", cartId);
         return cartRepository.findById(cartId);
     }
     
     public List<Cart> getAllCarts() {
+    	logger.debug("Listando todos los carritos");
         return cartRepository.findAll();
     }
 
     public boolean addProductToCart(String cartId, Product product) {
-        Optional<Cart> cartOpt = cartRepository.findById(cartId);
-        if (cartOpt.isPresent()) {
-            Cart cart = cartOpt.get();
-            cart.addProduct(product);
-            cart.setLastUpdated(LocalDateTime.now());
-            cartRepository.save(cart);
-            return true;
+        logger.info("Agregando producto {} al carrito {}", product.getId(), cartId);
+        
+        try {
+            return cartRepository.findById(cartId)
+                    .map(cart -> {
+                        cart.addProduct(product);
+                        cart.setLastUpdated(LocalDateTime.now());
+                        cartRepository.save(cart);
+                        logger.info("Producto agregado con éxito al carrito {}", cartId);
+                        return true;
+                    })
+                    .orElseGet(() -> {
+                        logger.warn("No se encontró el carrito {}", cartId);
+                        return false;
+                    });
+        } catch (Exception e) {
+            logger.error("Error al agregar producto al carrito {}: {}", cartId, e.getMessage(), e);
+            return false;
         }
-        return false;
     }
     
     public void cleanInactiveCarts() {
-    	List<Cart> cartsToRemove = new ArrayList<>(cartRepository.getAllCarts().values());
+    	List<Cart> cartsToCheck= new ArrayList<>(cartRepository.getAllCarts().values());
+    	int removedCount = 0; 
 
-        for (Cart cart : cartsToRemove) {
+        logger.info("Revisando {} carritos para eliminar los inactivos...", cartsToCheck.size());
+
+        for (Cart cart : cartsToCheck) {
             boolean isInactive = cart.isInactiveFor(2);
-            System.out.println("Cart ID: " + cart.getId() + " | Inactive: " + isInactive);
-
             if (isInactive) {
+            	String cartId = cart.getId(); 
                 cartRepository.deleteById(cart.getId());
+                logger.info("Eliminado carrito inactivo: {}", cartId);
+                removedCount++;
             }
         }
+        
+        logger.info("Proceso de limpieza finalizado. Carritos eliminados: {}", removedCount);
     	
     }
 
     public void deleteCart(String cartId) {
-        cartRepository.deleteById(cartId);
+    	try {
+            cartRepository.deleteById(cartId);
+            logger.info("Eliminado el carrito {}", cartId);
+        } catch (Exception e) {
+            logger.error("Error al eliminar el carrito {}: {}", cartId, e.getMessage(), e);
+        }
     }
 
 }
