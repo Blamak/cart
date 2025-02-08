@@ -7,6 +7,7 @@ import com.ecommerce.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -32,6 +33,12 @@ public class CartController {
         Optional<Cart> cart = cartService.getCart(cartId);
         return cart.map(ResponseEntity::ok)
                    .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<Cart>> getAllCarts() {
+        List<Cart> carts = cartService.getAllCarts();
+        return ResponseEntity.ok(carts);
     }
 
    

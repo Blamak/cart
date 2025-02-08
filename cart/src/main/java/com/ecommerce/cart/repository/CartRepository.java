@@ -32,17 +32,8 @@ public class CartRepository {
         return new ArrayList<>(cartStorage.values());
     }
 
-//    public Map<String, Cart> getAllCarts() {
-//        return cartStorage;
-//    }
-    
-    // revisar
     public Map<String, Cart> getAllCarts() {
         return Collections.unmodifiableMap(cartStorage);
     }
     
-    public void removeInactiveCarts(int minutes) {
-        cartStorage.entrySet().removeIf(entry -> entry.getValue().isInactiveFor(minutes));
-    }
-
 }
