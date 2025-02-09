@@ -2,10 +2,7 @@ package com.ecommerce.cart.controller;
 
 import com.ecommerce.cart.dto.CartDTO;
 import com.ecommerce.cart.dto.ProductDTO;
-import com.ecommerce.cart.model.Product;
 import com.ecommerce.cart.service.CartService;
-import com.ecommerce.cart.service.VolatileCartService;
-
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -19,7 +16,7 @@ public class CartController {
 
     private final CartService cartService;
 
-    public CartController(VolatileCartService cartService) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
     }
 

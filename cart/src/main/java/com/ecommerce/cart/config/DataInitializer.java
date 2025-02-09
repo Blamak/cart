@@ -18,10 +18,10 @@ public class DataInitializer {
         logger.info("Inicializando productos en memoria...");
 
         PRODUCTS = List.of(
-        		new Product((long) 1, "Pala de pádel", 15),
-        		new Product((long) 2, "Pelotas de pádel (Pack de 3)", 50),
-        		new Product((long) 3, "Pelotas de pádel (Pack de 12)", 25),
-        		new Product((long) 4, "Bolsa de pádel", 10)
+        		new Product(1L, "Pala de pádel", 15),
+        		new Product(2L, "Pelotas de pádel (Pack de 3)", 50),
+        		new Product(3L, "Pelotas de pádel (Pack de 12)", 25),
+        		new Product(4L, "Bolsa de pádel", 10)
         );
 
         logger.info("Productos inicializados correctamente.");
