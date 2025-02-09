@@ -1,6 +1,6 @@
 package com.ecommerce.cart.controller;
 
-import com.ecommerce.cart.model.Cart;
+import com.ecommerce.cart.dto.CartDTO;
 import com.ecommerce.cart.model.Product;
 import com.ecommerce.cart.service.CartService;
 
@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/cart")
@@ -24,22 +23,22 @@ public class CartController {
 
     
     @PostMapping
-    public ResponseEntity<Cart> createCart() {
-        Cart cart = cartService.createCart();
+    public ResponseEntity<CartDTO> createCart() {
+        CartDTO cart = cartService.createCart();
         return ResponseEntity.ok(cart);
     }
 
     
     @GetMapping("/{cartId}")
-    public ResponseEntity<Cart> getCart(@PathVariable String cartId) {
-        Optional<Cart> cart = cartService.getCart(cartId);
-        return cart.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<CartDTO> getCart(@PathVariable String cartId) {
+    	return cartService.getCart(cartId)
+    			.map(ResponseEntity::ok)
+    			.orElseGet(() -> ResponseEntity.notFound().build());
     }
     
     @GetMapping("/all")
-    public ResponseEntity<List<Cart>> getAllCarts() {
-        List<Cart> carts = cartService.getAllCarts();
+    public ResponseEntity<List<CartDTO>> getAllCarts() {
+        List<CartDTO> carts = cartService.getAllCarts();
         return ResponseEntity.ok(carts);
     }
 

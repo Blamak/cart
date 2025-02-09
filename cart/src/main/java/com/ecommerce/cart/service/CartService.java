@@ -1,5 +1,7 @@
 package com.ecommerce.cart.service;
 
+import com.ecommerce.cart.dto.CartDTO;
+import com.ecommerce.cart.dto.ProductDTO;
 import com.ecommerce.cart.model.Cart;
 import com.ecommerce.cart.model.Product;
 import com.ecommerce.cart.repository.CartRepository;
@@ -24,23 +26,50 @@ public class CartService {
         this.cartRepository = cartRepository;
     }
 
-    public Cart createCart() {
+  
+    public CartDTO createCart() {
         String cartId = UUID.randomUUID().toString();
-        logger.info("Creando carrito carrito con ID: {}", cartId);
+        logger.info("Creando carrito con ID: {}", cartId);
         Cart cart = new Cart(cartId);
         cartRepository.save(cart);
         logger.info("Creado carrito con ID: {}", cartId);
-        return cart;
+
+        return new CartDTO(cart.getId(), new ArrayList<>());
     }
 
-    public Optional<Cart> getCart(String cartId) {
-    	logger.debug("Buscando carrito con ID: {}", cartId);
-        return cartRepository.findById(cartId);
+    public Optional<CartDTO> getCart(String cartId) {
+        logger.debug("Buscando carrito con ID: {}", cartId);
+        
+        return cartRepository.findById(cartId)
+            .map(cart -> {
+                List<ProductDTO> productDTOs = cart.getProducts().stream()
+                    .map(product -> new ProductDTO(
+                        product.getId(),
+                        product.getDescription(),
+                        product.getAmount()
+                    ))
+                    .toList(); 
+                
+                return new CartDTO(cart.getId(), productDTOs);
+            });
     }
+
     
-    public List<Cart> getAllCarts() {
-    	logger.debug("Listando todos los carritos");
-        return cartRepository.findAll();
+    public List<CartDTO> getAllCarts() {
+        logger.debug("Listando todos los carritos");
+
+        return cartRepository.findAll().stream()
+            .map(cart -> new CartDTO(
+                cart.getId(),
+                cart.getProducts().stream()
+                    .map(product -> new ProductDTO(
+                        product.getId(),
+                        product.getDescription(),
+                        product.getAmount()
+                    ))
+                    .toList()
+            ))
+            .toList();
     }
 
     public boolean addProductToCart(String cartId, Product product) {
