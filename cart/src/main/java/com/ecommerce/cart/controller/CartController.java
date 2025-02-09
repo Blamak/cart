@@ -1,8 +1,9 @@
 package com.ecommerce.cart.controller;
 
 import com.ecommerce.cart.dto.CartDTO;
+import com.ecommerce.cart.dto.ProductDTO;
 import com.ecommerce.cart.model.Product;
-import com.ecommerce.cart.service.CartService;
+import com.ecommerce.cart.service.VolatileCartService;
 
 import jakarta.validation.Valid;
 
@@ -15,9 +16,9 @@ import java.util.List;
 @RequestMapping("/cart")
 public class CartController {
 
-    private final CartService cartService;
+    private final VolatileCartService cartService;
 
-    public CartController(CartService cartService) {
+    public CartController(VolatileCartService cartService) {
         this.cartService = cartService;
     }
 
@@ -44,8 +45,8 @@ public class CartController {
 
    
     @PostMapping("/{cartId}/product")
-    public ResponseEntity<String> addProductToCart(@PathVariable String cartId, @Valid @RequestBody Product product) {
-        boolean added = cartService.addProductToCart(cartId, product);
+    public ResponseEntity<String> addProductToCart(@PathVariable String cartId, @Valid @RequestBody ProductDTO productDTO) {
+        boolean added = cartService.addProductToCart(cartId, productDTO);
         if (added) {
             return ResponseEntity.ok("Producto agregado correctamente.");
         } else {

@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.ecommerce.cart.service.CartService;
+import com.ecommerce.cart.service.VolatileCartService;
 
 
 @SpringBootApplication
@@ -15,7 +15,7 @@ public class CartApplication {
 		var context = SpringApplication.run(CartApplication.class, args);
 
         // Start a background thread to clean up inactive carts
-        CartService cartService = context.getBean(CartService.class);
+        VolatileCartService cartService = context.getBean(VolatileCartService.class);
         new Thread(() -> {
             while (true) {
                 try {
