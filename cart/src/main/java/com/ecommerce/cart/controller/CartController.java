@@ -54,6 +54,17 @@ public class CartController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @PostMapping("/{cartId}/product/{productId}")
+    public ResponseEntity<String> addProductToCartById(@PathVariable String cartId, @PathVariable Long productId) {
+        boolean added = cartService.addProductToCartById(cartId, productId);
+        if (added) {
+            return ResponseEntity.ok("Producto agregado correctamente.");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
    
     @DeleteMapping("/{cartId}")

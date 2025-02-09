@@ -19,8 +19,7 @@ public class CartApplication {
         new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(10000);
-                    System.out.println("cleannn");
+                    Thread.sleep(60000); // 1 minute
                     cartService.cleanInactiveCarts();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

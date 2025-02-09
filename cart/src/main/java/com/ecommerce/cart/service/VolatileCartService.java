@@ -1,5 +1,6 @@
 package com.ecommerce.cart.service;
 
+import com.ecommerce.cart.config.DataInitializer;
 import com.ecommerce.cart.dto.CartDTO;
 import com.ecommerce.cart.dto.ProductDTO;
 import com.ecommerce.cart.model.Cart;
@@ -34,7 +35,7 @@ public class VolatileCartService implements CartService {
         cartRepository.save(cart);
         logger.info("Creado carrito con ID: {}", cartId);
 
-        return new CartDTO(cart.getId(), new ArrayList<>());
+        return new CartDTO(cart.getId(), new ArrayList<>(), cart.getLastUpdated());
     }
 
     @Override
@@ -51,7 +52,7 @@ public class VolatileCartService implements CartService {
                     ))
                     .toList(); 
                 
-                return new CartDTO(cart.getId(), productDTOs);
+                return new CartDTO(cart.getId(), productDTOs, cart.getLastUpdated());
             });
     }
 
@@ -68,7 +69,8 @@ public class VolatileCartService implements CartService {
                         product.getDescription(),
                         product.getAmount()
                     ))
-                    .toList()
+                    .toList(),
+                    cart.getLastUpdated()
             ))
             .toList();
     }
@@ -101,6 +103,34 @@ public class VolatileCartService implements CartService {
         }
     }
     
+    public boolean addProductToCartById(String cartId, Long productId) {
+        logger.info("Añadiendo producto {} al carrito {}", productId, cartId);
+
+        return cartRepository.findById(cartId)
+            .map(cart -> {
+                // Find the product from the initialized list
+                Optional<Product> productOpt = DataInitializer.getProducts().stream()
+                        .filter(p -> p.getId().equals(productId))
+                        .findFirst();
+
+                if (productOpt.isPresent()) {
+                    cart.addProduct(productOpt.get());
+                    cart.setLastUpdated(LocalDateTime.now());
+                    cartRepository.save(cart);
+                    logger.info("Producto {} añadido correctamente al carrito {}", productId, cartId);
+                    return true;
+                } else {
+                    logger.warn("Producto {} no encontrado", productId);
+                    return false;
+                }
+            })
+            .orElseGet(() -> {
+                logger.warn("Carrito {} no encontrado", cartId);
+                return false;
+            });
+    }
+
+    
     @Override
     public void cleanInactiveCarts() {
     	List<Cart> cartsToCheck= new ArrayList<>(cartRepository.getAllCarts().values());
@@ -109,7 +139,7 @@ public class VolatileCartService implements CartService {
         logger.info("Revisando {} carritos para eliminar los inactivos...", cartsToCheck.size());
 
         for (Cart cart : cartsToCheck) {
-            boolean isInactive = cart.isInactiveFor(2);
+            boolean isInactive = cart.isInactiveFor(10);
             if (isInactive) {
             	String cartId = cart.getId(); 
                 cartRepository.deleteById(cart.getId());
@@ -131,5 +161,6 @@ public class VolatileCartService implements CartService {
             logger.error("Error al eliminar el carrito {}: {}", cartId, e.getMessage(), e);
         }
     }
+
 
 }

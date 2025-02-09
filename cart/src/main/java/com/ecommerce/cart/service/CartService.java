@@ -11,6 +11,7 @@ public interface CartService {
     Optional<CartDTO> getCart(String cartId);
     List<CartDTO> getAllCarts();
     boolean addProductToCart(String cartId, ProductDTO product);
+    boolean addProductToCartById(String cartId, Long productId);
     void cleanInactiveCarts();
     void deleteCart(String cartId);
 }
