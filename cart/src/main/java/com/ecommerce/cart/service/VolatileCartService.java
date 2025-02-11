@@ -47,11 +47,16 @@ public class VolatileCartService implements CartService {
 	public CartDTO getCart(String cartId) {
 		logger.debug("Buscando carrito con ID: {}", cartId);
 
-		return cartRepository.findById(cartId)
-				.map(cart -> new CartDTO(cart.getId(), cart.getProducts().stream()
-						.map(product -> new ProductDTO(cartId, product.getId(), product.getDescription(), product.getAmount()))
-						.toList(), cart.getLastUpdated()))
-				.orElseThrow(() -> new CartNotFoundException(cartId));
+		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> {
+			logger.warn("Carrito {} no encontrado", cartId);
+			return new CartNotFoundException(cartId);
+		});
+
+		List<ProductDTO> productDTOs = cart.getProducts().stream().map(
+				product -> new ProductDTO(cart.getId(), product.getId(), product.getDescription(), product.getAmount()))
+				.toList();
+
+		return new CartDTO(cart.getId(), productDTOs, cart.getLastUpdated());
 	}
 
 	@Override
@@ -59,54 +64,49 @@ public class VolatileCartService implements CartService {
 		logger.debug("Listando todos los carritos");
 
 		return cartRepository.findAll().stream()
-				.map(cart -> new CartDTO(cart.getId(), cart.getProducts().stream()
-						.map(product -> new ProductDTO(cart.getId(), product.getId(), product.getDescription(), product.getAmount()))
-						.toList(), cart.getLastUpdated()))
+				.map(cart -> new CartDTO(cart.getId(),
+						cart.getProducts().stream().map(product -> new ProductDTO(cart.getId(), product.getId(),
+								product.getDescription(), product.getAmount())).toList(),
+						cart.getLastUpdated()))
 				.toList();
 	}
 
 	@Override
 	public CartDTO addProductToCart(String cartId, Long productId, int quantity) {
-		logger.info("QQQ {}", quantity);
 		if (quantity <= 0) {
-			logger.info("QQQ {}", quantity);
 			throw new InvalidProductQuantityException("La cantidad debe ser superior a 0.");
 		}
-		
+
 		logger.info("Añadiendo {} unidades del producto {} al carrito {}", quantity, productId, cartId);
 
-		Cart cart = cartRepository.findById(cartId)
-				.orElseThrow(() -> {logger.warn("Carrito {} no encontrado", cartId);
+		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> {
+			logger.warn("Carrito {} no encontrado", cartId);
 			return new CartNotFoundException(cartId);
 		});
 
-		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> {logger.warn("Producto {} no encontrado", productId);
+		Product product = productRepository.findById(productId).orElseThrow(() -> {
+			logger.warn("Producto {} no encontrado", productId);
 			return new ProductNotFoundException(productId);
 		});
-		
+
 		ProductDTO productDTO = new ProductDTO(product.getId(), product.getDescription(), product.getAmount());
 
 		if (productDTO.getAmount() < quantity) {
-			logger.warn("Stock insuficiente para el producto {}. Disponible: {}, solicitado: {}", product.getDescription(),
-					product.getAmount(), quantity);
+			logger.warn("Stock insuficiente para el producto {}. Disponible: {}, solicitado: {}",
+					product.getDescription(), product.getAmount(), quantity);
 			throw new InsufficientStockException(productId, productDTO.getAmount(), quantity);
 		}
 
-		 int newStock = productDTO.getAmount() - quantity;
-		 productRepository.updateProductStock(productId, newStock);
+		int newStock = productDTO.getAmount() - quantity;
+		productRepository.updateProductStock(productId, newStock);
 
 		cart.addProduct(productDTO.getId(), productDTO.getDescription(), quantity);
 		cartRepository.save(cart);
 
-		logger.info("Producto {} agregado con éxito al carrito {}. Stock restante: {}", product.getDescription(), cartId,
-				product.getAmount());
-		
-		return new CartDTO(
-                cart.getId(),
-                cart.getProducts().stream().toList(),
-                cart.getLastUpdated()
-        );
+		logger.info("Producto {} agregado con éxito al carrito {}. Stock restante: {}", product.getDescription(),
+				cartId, product.getAmount());
+
+		return new CartDTO(cart.getId(), cart.getProducts().stream().toList(), cart.getLastUpdated());
 	}
 
 	@Override
@@ -134,25 +134,22 @@ public class VolatileCartService implements CartService {
 
 	@Override
 	public void deleteCart(String cartId) {
-		try {
-			Cart cart = cartRepository.findById(cartId)
-					.orElseThrow(() -> new CartNotFoundException(cartId));
-			
-			deleteProductsFromCart(cart.getProducts());
-			cartRepository.deleteById(cartId);
-			logger.info("Eliminado el carrito {}", cartId);
-		} catch (Exception e) {
-			logger.error("Error al eliminar el carrito {}: {}", cartId, e.getMessage(), e);
-		}
-	}
 	
-	private void deleteProductsFromCart(List<ProductDTO> products) {
-	    products.forEach(productDTO -> {
-	        Product product = productRepository.findById(productDTO.getId())
-	                .orElseThrow(() -> new ProductNotFoundException(productDTO.getId()));
+		Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
 
-	        product.setAmount(product.getAmount() + productDTO.getAmount());
-	    });
+		deleteProductsFromCart(cart.getProducts());
+		cartRepository.deleteById(cartId);
+		logger.info("Eliminado el carrito {}", cartId);
+		
+	}
+
+	void deleteProductsFromCart(List<ProductDTO> products) {
+		products.forEach(productDTO -> {
+			Product product = productRepository.findById(productDTO.getId())
+					.orElseThrow(() -> new ProductNotFoundException(productDTO.getId()));
+
+			product.setAmount(product.getAmount() + productDTO.getAmount());
+		});
 	}
 
 }

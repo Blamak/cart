@@ -16,8 +16,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 	
-	private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     @ExceptionHandler(CartNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Map<String, String>> handleCartNotFoundException(CartNotFoundException ex) {
