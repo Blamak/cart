@@ -3,12 +3,13 @@ package com.ecommerce.cart.service;
 import com.ecommerce.cart.config.DataInitializer;
 import com.ecommerce.cart.dto.CartDTO;
 import com.ecommerce.cart.dto.ProductDTO;
+import com.ecommerce.cart.exception.CartNotFoundException;
 import com.ecommerce.cart.model.Cart;
 import com.ecommerce.cart.model.Product;
 import com.ecommerce.cart.repository.CartRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,22 +40,18 @@ public class VolatileCartService implements CartService {
     }
 
     @Override
-    public Optional<CartDTO> getCart(String cartId) {
+    public CartDTO getCart(String cartId) {
         logger.debug("Buscando carrito con ID: {}", cartId);
         
         return cartRepository.findById(cartId)
-            .map(cart -> {
-                List<ProductDTO> productDTOs = cart.getProducts().stream()
-                    .map(product -> new ProductDTO(
-                        product.getId(),
-                        product.getDescription(),
-                        product.getAmount()
-                    ))
-                    .toList(); 
-                
-                return new CartDTO(cart.getId(), productDTOs, cart.getLastUpdated());
-            });
+                .map(cart -> new CartDTO(cart.getId(), 
+                    cart.getProducts().stream()
+                        .map(product -> new ProductDTO(product.getId(), product.getDescription(), product.getAmount()))
+                        .toList(), 
+                    cart.getLastUpdated()))
+                .orElseThrow(() -> new CartNotFoundException(cartId));
     }
+
 
     @Override
     public List<CartDTO> getAllCarts() {
@@ -75,35 +72,8 @@ public class VolatileCartService implements CartService {
             .toList();
     }
 
-    @Override
-    public boolean addProductToCart(String cartId, ProductDTO productDTO) {
-        logger.info("Agregando producto {} al carrito {}", productDTO.getId(), cartId);
-        
-        try {
-            return cartRepository.findById(cartId)
-            		.map(cart -> {
-            			Product product = new Product(
-            					productDTO.getId(),
-            					productDTO.getDescription(),
-            					productDTO.getAmount()
-            			);
-                        cart.addProduct(product);
-                        cart.setLastUpdated(LocalDateTime.now());
-                        cartRepository.save(cart);
-                        logger.info("Producto agregado con éxito al carrito {}", cartId);
-                        return true;
-                    })
-                    .orElseGet(() -> {
-                        logger.warn("No se encontró el carrito {}", cartId);
-                        return false;
-                    });
-        } catch (Exception e) {
-            logger.error("Error al agregar producto al carrito {}: {}", cartId, e.getMessage(), e);
-            return false;
-        }
-    }
     
-    public boolean addProductToCartById(String cartId, Long productId) {
+    public boolean addProductToCart(String cartId, Long productId) {
         logger.info("Añadiendo producto {} al carrito {}", productId, cartId);
 
         return cartRepository.findById(cartId)
@@ -132,6 +102,7 @@ public class VolatileCartService implements CartService {
 
     
     @Override
+    @Scheduled(fixedRate = 600000)
     public void cleanInactiveCarts() {
     	List<Cart> cartsToCheck= new ArrayList<>(cartRepository.getAllCarts().values());
     	int removedCount = 0; 

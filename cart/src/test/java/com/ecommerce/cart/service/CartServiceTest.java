@@ -2,6 +2,7 @@ package com.ecommerce.cart.service;
 
 import com.ecommerce.cart.dto.CartDTO;
 import com.ecommerce.cart.dto.ProductDTO;
+import com.ecommerce.cart.exception.CartNotFoundException;
 import com.ecommerce.cart.model.Cart;
 import com.ecommerce.cart.repository.CartRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,121 +22,93 @@ import static org.mockito.Mockito.*;
 
 class CartServiceTest {
 
-    @Mock
-    private CartRepository cartRepository;
+	@Mock
+	private CartRepository cartRepository;
 
-    @InjectMocks
-    private VolatileCartService cartService;
+	@InjectMocks
+	private VolatileCartService cartService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
 
-    @Test
-    void createCart_ShouldReturnNewCartDTO() {
-        CartDTO cart = cartService.createCart();
+	@Test
+	void createCart_ShouldReturnNewCartDTO() {
+		CartDTO cart = cartService.createCart();
 
-        assertNotNull(cart);
-        assertNotNull(cart.getId());
-    }
+		assertNotNull(cart);
+		assertNotNull(cart.getId());
+	}
 
-    @Test
-    void getCart_ShouldReturnCart_WhenExists() {
-        String cartId = "123";
-        Cart cart = new Cart(cartId);
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+	@Test
+	void getCart_ShouldReturnCart_WhenExists() {
+		String cartId = "123";
+		Cart cart = new Cart(cartId);
+		when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
 
-        Optional<CartDTO> result = cartService.getCart(cartId);
+		CartDTO result = cartService.getCart(cartId);
 
-        assertTrue(result.isPresent());
-        assertEquals(cartId, result.get().getId());
-    }
+		assertNotNull(result);
+		assertEquals(cartId, result.getId());
+	}
 
-    @Test
-    void getCart_ShouldReturnEmpty_WhenCartDoesNotExist() {
-        when(cartRepository.findById("999")).thenReturn(Optional.empty());
+	@Test
+	void getCart_ShouldThrowCartNotFoundException_WhenCartDoesNotExist() {
+		String cartId = "999";
+		when(cartRepository.findById(cartId)).thenReturn(Optional.empty());
 
-        Optional<CartDTO> result = cartService.getCart("999");
+		CartNotFoundException exception = assertThrows(CartNotFoundException.class, () -> cartService.getCart(cartId));
 
-        assertFalse(result.isPresent());
-    }
+		assertEquals("Carrito con ID 999 no encontrado.", exception.getMessage());
+	}
 
-    @Test
-    void addProductToCart_ShouldReturnTrue_WhenCartExists() {
-        String cartId = "123";
-        ProductDTO product = new ProductDTO(1L, "Pala de pádel", 1);
-        Cart cart = new Cart(cartId);
+	@Test
+	void cleanInactiveCarts_ShouldRemoveInactiveCarts() {
+		String activeCartId = "active-cart";
+		String inactiveCartId = "inactive-cart";
 
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+		Cart activeCart = new Cart(activeCartId);
+		Cart inactiveCart = new Cart(inactiveCartId);
 
-        boolean result = cartService.addProductToCart(cartId, product);
+		inactiveCart.setLastUpdated(LocalDateTime.now().minusMinutes(11));
+		activeCart.setLastUpdated(LocalDateTime.now().minusMinutes(5));
 
-        assertTrue(result);
-        assertEquals(1, cart.getProducts().size());
-        verify(cartRepository, times(1)).save(cart);
-    }
+		Map<String, Cart> cartsInMemory = new HashMap<>();
+		cartsInMemory.put(activeCartId, activeCart);
+		cartsInMemory.put(inactiveCartId, inactiveCart);
 
-    @Test
-    void addProductToCart_ShouldReturnFalse_WhenCartDoesNotExist() {
-        String cartId = "999";
-        ProductDTO product = new ProductDTO(1L, "Pala de pádel", 1);
+		when(cartRepository.getAllCarts()).thenReturn(Collections.unmodifiableMap(cartsInMemory));
 
-        when(cartRepository.findById(cartId)).thenReturn(Optional.empty());
+		cartService.cleanInactiveCarts();
 
-        boolean result = cartService.addProductToCart(cartId, product);
+		verify(cartRepository, times(1)).deleteById(inactiveCartId);
+		verify(cartRepository, never()).deleteById(activeCartId);
+	}
 
-        assertFalse(result);
-    }
-    
-    @Test
-    void cleanInactiveCarts_ShouldRemoveInactiveCarts() {
-        String activeCartId = "active-cart";
-        String inactiveCartId = "inactive-cart";
+	@Test
+	void cleanInactiveCarts_ShouldNotRemoveActiveCarts() {
+		String activeCartId = "active-cart";
+		Cart activeCart = new Cart(activeCartId);
+		activeCart.setLastUpdated(LocalDateTime.now().minusMinutes(5));
 
-        Cart activeCart = new Cart(activeCartId);
-        Cart inactiveCart = new Cart(inactiveCartId);
+		Map<String, Cart> cartsInMemory = new HashMap<>();
+		cartsInMemory.put(activeCartId, activeCart);
 
-        inactiveCart.setLastUpdated(LocalDateTime.now().minusMinutes(11)); 
-        activeCart.setLastUpdated(LocalDateTime.now().minusMinutes(5)); 
+		when(cartRepository.getAllCarts()).thenReturn(Collections.unmodifiableMap(cartsInMemory));
 
-        Map<String, Cart> cartsInMemory = new HashMap<>();
-        cartsInMemory.put(activeCartId, activeCart);
-        cartsInMemory.put(inactiveCartId, inactiveCart);
+		cartService.cleanInactiveCarts();
 
-        when(cartRepository.getAllCarts()).thenReturn(Collections.unmodifiableMap(cartsInMemory));
+		verify(cartRepository, never()).deleteById(anyString());
+	}
 
-        cartService.cleanInactiveCarts();
+	@Test
+	void cleanInactiveCarts_ShouldHandleEmptyRepository() {
+		when(cartRepository.getAllCarts()).thenReturn(Collections.emptyMap());
 
-        verify(cartRepository, times(1)).deleteById(inactiveCartId);
-        verify(cartRepository, never()).deleteById(activeCartId);
-    }
-    
-    @Test
-    void cleanInactiveCarts_ShouldNotRemoveActiveCarts() {
-        String activeCartId = "active-cart";
-        Cart activeCart = new Cart(activeCartId);
-        activeCart.setLastUpdated(LocalDateTime.now().minusMinutes(5)); 
+		cartService.cleanInactiveCarts();
 
-        Map<String, Cart> cartsInMemory = new HashMap<>();
-        cartsInMemory.put(activeCartId, activeCart);
-
-        when(cartRepository.getAllCarts()).thenReturn(Collections.unmodifiableMap(cartsInMemory));
-
-        cartService.cleanInactiveCarts();
-
-        verify(cartRepository, never()).deleteById(anyString());
-    }
-    
-    @Test
-    void cleanInactiveCarts_ShouldHandleEmptyRepository() {
-        when(cartRepository.getAllCarts()).thenReturn(Collections.emptyMap());
-
-        cartService.cleanInactiveCarts();
-
-        verify(cartRepository, never()).deleteById(anyString());
-    }
-
-
+		verify(cartRepository, never()).deleteById(anyString());
+	}
 
 }

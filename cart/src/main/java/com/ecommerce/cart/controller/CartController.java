@@ -3,6 +3,9 @@ package com.ecommerce.cart.controller;
 import com.ecommerce.cart.dto.CartDTO;
 import com.ecommerce.cart.dto.ProductDTO;
 import com.ecommerce.cart.service.CartService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -19,9 +22,10 @@ public class CartController {
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
-
     
     @PostMapping
+    @Operation(summary = "Crear un nuevo carrito", description = "Genera un nuevo carrito vacío")
+    @ApiResponse(responseCode = "200", description = "Carrito creado exitosamente")
     public ResponseEntity<CartDTO> createCart() {
         CartDTO cart = cartService.createCart();
         return ResponseEntity.ok(cart);
@@ -29,32 +33,31 @@ public class CartController {
 
     
     @GetMapping("/{cartId}")
+    @Operation(summary = "Obtener un carrito por ID", description = "Devuelve la información del carrito dado su ID")
+    @ApiResponse(responseCode = "200", description = "Carrito encontrado")
+    @ApiResponse(responseCode = "404", description = "Carrito no encontrado")
     public ResponseEntity<CartDTO> getCart(@PathVariable String cartId) {
-    	return cartService.getCart(cartId)
-    			.map(ResponseEntity::ok)
-    			.orElseGet(() -> ResponseEntity.notFound().build());
+    	return ResponseEntity.ok(cartService.getCart(cartId));
     }
     
     @GetMapping("/all")
+    @Operation(summary = "Obtener todos los carritos", description = "Devuelve la información de todos los carritos activos")
+    @ApiResponse(responseCode = "200", description = "Lista de carritos obtenida correctamente")
+    @ApiResponse(responseCode = "204", description = "No hay carritos disponibles")
     public ResponseEntity<List<CartDTO>> getAllCarts() {
         List<CartDTO> carts = cartService.getAllCarts();
-        return ResponseEntity.ok(carts);
+        return carts.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(carts);
     }
 
    
-    @PostMapping("/{cartId}/product")
-    public ResponseEntity<String> addProductToCart(@PathVariable String cartId, @Valid @RequestBody ProductDTO productDTO) {
-        boolean added = cartService.addProductToCart(cartId, productDTO);
-        if (added) {
-            return ResponseEntity.ok("Producto agregado correctamente.");
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
     
     @PostMapping("/{cartId}/product/{productId}")
+    @Operation(summary = "Agregar al carrito uno de los productos inicializados", description = "Añade un producto al carrito usando el ID del producto")
+    @ApiResponse(responseCode = "200", description = "Producto agregado correctamente")
+    @ApiResponse(responseCode = "404", description = "Carrito o producto no encontrado")
+    @ApiResponse(responseCode = "400", description = "Solicitud inválida")
     public ResponseEntity<String> addProductToCartById(@PathVariable String cartId, @PathVariable Long productId) {
-        boolean added = cartService.addProductToCartById(cartId, productId);
+        boolean added = cartService.addProductToCart(cartId, productId);
         if (added) {
             return ResponseEntity.ok("Producto agregado correctamente.");
         } else {
@@ -65,6 +68,9 @@ public class CartController {
 
    
     @DeleteMapping("/{cartId}")
+    @Operation(summary = "Eliminar un carrito", description = "Elimina un carrito dado su ID")
+    @ApiResponse(responseCode = "200", description = "Carrito eliminado correctamente")
+    @ApiResponse(responseCode = "404", description = "Carrito no encontrado")
     public ResponseEntity<String> deleteCart(@PathVariable String cartId) {
         cartService.deleteCart(cartId);
         return ResponseEntity.ok("Carrito eliminado correctamente.");
