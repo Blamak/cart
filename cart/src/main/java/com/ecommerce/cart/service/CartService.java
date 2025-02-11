@@ -8,7 +8,7 @@ public interface CartService {
     CartDTO createCart();
     CartDTO getCart(String cartId);
     List<CartDTO> getAllCarts();
-    boolean addProductToCart(String cartId, Long productId);
+    CartDTO addProductToCart(String cartId, Long productId, int quantity);
     void cleanInactiveCarts();
     void deleteCart(String cartId);
 }
