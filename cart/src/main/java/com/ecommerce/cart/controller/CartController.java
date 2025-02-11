@@ -56,7 +56,7 @@ public class CartController {
     @ApiResponse(responseCode = "200", description = "Producto agregado correctamente")
     @ApiResponse(responseCode = "404", description = "Carrito o producto no encontrado")
     @ApiResponse(responseCode = "400", description = "Solicitud inválida")
-    public ResponseEntity<String> addProductToCartById(@PathVariable String cartId, @PathVariable Long productId) {
+    public ResponseEntity<String> addProductToCart(@PathVariable String cartId, @PathVariable Long productId) {
         boolean added = cartService.addProductToCart(cartId, productId);
         if (added) {
             return ResponseEntity.ok("Producto agregado correctamente.");
