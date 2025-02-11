@@ -1,13 +1,15 @@
 ### Building and running the application
-
+1️⃣ Run the Application from Maven (pom.xml)
+1. fgdf
+2. Docker
 Start application by running:
 `docker compose up --build`.
 
-Your application will be available at http://localhost:9191.
+The application will be available at http://localhost:9191.
 
-### Deploying your application to the cloud
+### Deploying the application to the cloud
 
-First, build your image, e.g.: `docker build -t myapp .`.
+First, build the image, e.g.: `docker build -t myapp .`.
 If your cloud uses a different CPU architecture than your development
 machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
 you'll want to build the image for that platform, e.g.:
