@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+ # syntax=docker/dockerfile:1
 
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Dockerfile reference guide at
@@ -87,6 +87,6 @@ COPY --from=extract build/target/extracted/spring-boot-loader/ ./
 COPY --from=extract build/target/extracted/snapshot-dependencies/ ./
 COPY --from=extract build/target/extracted/application/ ./
 
-EXPOSE 8080
+EXPOSE 9191
 
 ENTRYPOINT [ "java", "org.springframework.boot.loader.launch.JarLauncher" ]
