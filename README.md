@@ -1,5 +1,6 @@
 ### Building and running the application
 - Run the Application from Maven (pom.xml)
+  
 . Prerequisites
   Install Java 17 (if not already installed)
   Install Maven (if not already installed)
