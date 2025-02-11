@@ -1,3 +1,12 @@
+---
+
+## **📝 API Documentation - Swagger UI 🎛️**
+This application includes **Swagger UI** for API documentation and testing.  
+Once the application is running, access Swagger UI at:  
+➡ **[http://localhost:9191/swagger-ui/index.html](http://localhost:9191/swagger-ui/index.html)**
+
+---
+
 # 🚀 How to Run this Spring Boot Application
 
 This guide explains how to execute the application **from Maven** 🛠️ and **using Docker** 🐳.
