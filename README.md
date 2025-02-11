@@ -1,4 +1,4 @@
-# 🚀 How to Run the Spring Boot Application
+# 🚀 How to Run this Spring Boot Application
 
 This guide explains how to execute the application **from Maven** 🛠️ and **using Docker** 🐳.
 
