@@ -1,21 +1,75 @@
 ### Building and running the application
-1️⃣ Run the Application from Maven (pom.xml)
-1. fgdf
-2. Docker
-Start application by running:
-`docker compose up --build`.
+- Run the Application from Maven (pom.xml)
+. Prerequisites
+  Install Java 17 (if not already installed)
+  Install Maven (if not already installed)
+    Clone or navigate to your project directory.
+. Steps
+  Step 1. Navigate to the Project Directory:
+            cd /path/to/your/project
+  Step 2. Build the Project
+          Compile and package the application into a JAR file:
+            mvn clean package
+            (This generates a JAR file inside the target/ directory)
+  Step 3. Run the Application
+          Use Maven to execute the Spring Boot app:
+            mvn spring-boot:run
+          Alternatively, run the JAR directly:
+            java -jar target/cart-0.0.1-SNAPSHOT.jar
+            Expected Outcome:
+              The application starts, and logs appear in the console.
+              The API is accessible at: http://localhost:9191/
+  
+🚀 Run the Spring Boot Application with Docker
+📌 Prerequisites
+Docker installed and running (docker --version to verify)
+The project is built and packaged as a JAR file (mvn clean package)
+Step 1: Build the Docker Image
+Navigate to your project's root directory (where the Dockerfile is located) and run:
 
-The application will be available at http://localhost:9191.
+sh
+Copiar
+Editar
+docker build -t cart-app .
+🔹 This creates a Docker image named cart-app.
+  
+Step 2: Run the Docker Container
+Run the container and expose it on port 8080:
 
-### Deploying the application to the cloud
+sh
+Copiar
+Editar
+docker run -p 8080:8080 cart-app
+🔹 The application should now be accessible at:
+➡ http://localhost:8080/
 
-First, build the image, e.g.: `docker build -t myapp .`.
-If your cloud uses a different CPU architecture than your development
-machine (e.g., you are on a Mac M1 and your cloud provider is amd64),
-you'll want to build the image for that platform, e.g.:
-`docker build --platform=linux/amd64 -t myapp .`.
+Step 3: Run in Detached Mode (Optional)
+If you want the container to run in the background:
 
-Then, push it to your registry, e.g. `docker push myregistry.com/myapp`.
+sh
+Copiar
+Editar
+docker run -d -p 8080:8080 --name cart-container cart-app
+🔹 The container runs in detached mode, and you can check logs using:
+
+sh
+Copiar
+Editar
+docker logs -f cart-container
+Step 4: Stop & Remove the Container
+If you need to stop the container:
+
+sh
+Copiar
+Editar
+docker stop cart-container
+To remove it completely:
+
+sh
+Copiar
+Editar
+docker rm cart-container
+
 
 Consult Docker's [getting started](https://docs.docker.com/go/get-started-sharing/)
 docs for more detail on building and pushing.
