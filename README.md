@@ -5,17 +5,17 @@ This guide explains how to execute the application **from Maven** 🛠️ and **
 ---
 
 ## **1️⃣ Run the Application from Maven (`pom.xml`) 🛠️**
-Your project uses **Spring Boot**, so you can run it using Maven.
+This project uses **Spring Boot**, so you can run it using Maven.
 
 ### **📌 Prerequisites** ⚙️
 - ✅ **Java 17** installed  
 - ✅ **Maven** installed  
-- ✅ Clone or navigate to your project directory
+- ✅ Clone or navigate to the project directory
 
 ### **🛠️ Steps to Run**
 #### **🗂️ Step 1: Navigate to the Project Directory**
 ```sh
-cd /path/to/your/project
+cd /path/to/the/project
 ```
 
 #### **🔨 Step 2: Build the Project**
@@ -42,7 +42,7 @@ java -jar target/cart-0.0.1-SNAPSHOT.jar
 ---
 
 ## **2️⃣ Run the Application with Docker 🐳**
-Your project already contains a `Dockerfile`, so you can directly build and run it.
+The project already contains a `Dockerfile`, so you can directly build and run it.
 
 ### **📌 Prerequisites** ⚓
 - ✅ **Docker installed** and running  
@@ -57,17 +57,17 @@ docker build -t cart-app .
 🔹 This creates a Docker image named **cart-app**.
 
 #### **🚢 Step 2: Run the Docker Container**
-Run the container and expose it on port **8080**:
+Run the container and expose it on port **9191**:
 ```sh
-docker run -p 8080:8080 cart-app
+docker run -p 9191:9191 cart-app
 ```
 🔹 The application should now be accessible at:  
-🌍 **http://localhost:8080/**
+🌍 **http://localhost:9191/**
 
 #### **🌌 Step 3: Run in Detached Mode (Optional)**
 If you want the container to run in the background:
 ```sh
-docker run -d -p 8080:8080 --name cart-container cart-app
+docker run -d -p 9191:9191 --name cart-container cart-app
 ```
 🔹 The container runs in **detached mode**, and you can check logs using:
 ```sh
@@ -98,6 +98,4 @@ docker rm cart-container
 | **📜 Check Logs** | `docker logs -f cart-container` |
 | **🛑 Stop Container** | `docker stop cart-container` |
 | **🗑️ Remove Container** | `docker rm cart-container` |
-
-Your app is now running in **Maven** 🛠️ or **Docker** 🐳! 🎉🚀
 
