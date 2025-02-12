@@ -1,18 +1,23 @@
 package com.ecommerce.cart.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ProductDTO {
     private Long id;
     private String description;
     private int amount;
+    
+    @JsonIgnore
     private String cartId;
 
+    // Constructor para los productos incializados al arrancar la app
     public ProductDTO(Long id, String description, int amount) {
         this.id = id;
         this.description = description;
         this.amount = amount;
     }
 
+    // Constructor para productos añadidos a carritos
     public ProductDTO(String cartId, Long id, String description, int amount) {
     	this.cartId = cartId;
     	this.id = id;

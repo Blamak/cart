@@ -37,7 +37,6 @@ class CartServiceTest {
 
 	@InjectMocks
 	private VolatileCartService cartService;
-	
 
 	@Test
     void createCart_ShouldReturnNewCart() {
@@ -62,7 +61,6 @@ class CartServiceTest {
 	    verify(cartRepository).findById(cartId);
 	}
 
-
 	@Test
 	void getCart_ShouldThrowCartNotFoundException_WhenCartDoesNotExist() {
 		String cartId = "999";
@@ -80,7 +78,6 @@ class CartServiceTest {
 
 		Cart activeCart = new Cart(activeCartId);
 		Cart inactiveCart = new Cart(inactiveCartId);
-
 		inactiveCart.setLastUpdated(LocalDateTime.now().minusMinutes(11));
 		activeCart.setLastUpdated(LocalDateTime.now().minusMinutes(5));
 

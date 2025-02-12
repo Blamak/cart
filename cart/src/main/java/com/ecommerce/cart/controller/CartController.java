@@ -27,35 +27,35 @@ public class CartController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Crear un nuevo carrito", description = "Genera un nuevo carrito vacío")
-	@ApiResponse(responseCode = "200", description = "Carrito creado exitosamente")
+	@Operation(summary = "Crear un nuevo carrito", description = "Genera un nuevo carrito vacío.")
+	@ApiResponse(responseCode = "200", description = "Carrito creado exitosamente.")
 	public ResponseEntity<CartDTO> createCart() {
 		CartDTO cart = cartService.createCart();
 		return ResponseEntity.ok(cart);
 	}
 
 	@GetMapping("/{cartId}")
-	@Operation(summary = "Obtener un carrito por ID", description = "Devuelve la información del carrito dado su ID")
-	@ApiResponse(responseCode = "200", description = "Carrito encontrado")
-	@ApiResponse(responseCode = "404", description = "Carrito no encontrado")
+	@Operation(summary = "Obtener un carrito por ID", description = "Devuelve la información del carrito dado su ID.")
+	@ApiResponse(responseCode = "200", description = "Carrito encontrado.")
+	@ApiResponse(responseCode = "404", description = "Carrito no encontrado.")
 	public ResponseEntity<CartDTO> getCart(@PathVariable String cartId) {
 		return ResponseEntity.ok(cartService.getCart(cartId));
 	}
 
 	@GetMapping("/all")
-	@Operation(summary = "Obtener todos los carritos", description = "Devuelve la información de todos los carritos activos")
-	@ApiResponse(responseCode = "200", description = "Lista de carritos obtenida correctamente")
-	@ApiResponse(responseCode = "204", description = "No hay carritos disponibles")
+	@Operation(summary = "Obtener todos los carritos", description = "Devuelve la información de todos los carritos activos.")
+	@ApiResponse(responseCode = "200", description = "Lista de carritos obtenida correctamente.")
+	@ApiResponse(responseCode = "204", description = "No hay carritos disponibles.")
 	public ResponseEntity<List<CartDTO>> getAllCarts() {
 		List<CartDTO> carts = cartService.getAllCarts();
 		return carts.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(carts);
 	}
 
 	@PostMapping("/{cartId}/product/{productId}")
-	@Operation(summary = "Agregar un producto al carrito con cantidad específica", description = "Añade un producto al carrito especificando la cantidad deseada")
-	@ApiResponse(responseCode = "200", description = "Producto agregado correctamente")
-	@ApiResponse(responseCode = "404", description = "Carrito o producto no encontrado")
-	@ApiResponse(responseCode = "400", description = "Stock insuficiente o cantidad inválida")
+	@Operation(summary = "Agregar un producto al carrito con cantidad específica", description = "Añade un producto al carrito especificando la cantidad deseada.")
+	@ApiResponse(responseCode = "200", description = "Producto agregado correctamente.")
+	@ApiResponse(responseCode = "404", description = "Carrito o producto no encontrado.")
+	@ApiResponse(responseCode = "400", description = "Stock insuficiente o cantidad inválida.")
 	public ResponseEntity<?> addProductToCart(@PathVariable String cartId, @PathVariable Long productId,
 			@RequestParam(defaultValue = "1") int quantity) {
 		try {
@@ -73,9 +73,9 @@ public class CartController {
 	}
 
 	@DeleteMapping("/{cartId}")
-	@Operation(summary = "Eliminar un carrito", description = "Elimina un carrito dado su ID")
-	@ApiResponse(responseCode = "200", description = "Carrito eliminado correctamente")
-	@ApiResponse(responseCode = "404", description = "Carrito no encontrado")
+	@Operation(summary = "Eliminar un carrito", description = "Elimina un carrito dado su ID.")
+	@ApiResponse(responseCode = "200", description = "Carrito eliminado correctamente.")
+	@ApiResponse(responseCode = "404", description = "Carrito no encontrado.")
 	public ResponseEntity<String> deleteCart(@PathVariable String cartId) {
 		cartService.deleteCart(cartId);
 		return ResponseEntity.ok("Carrito eliminado correctamente.");
