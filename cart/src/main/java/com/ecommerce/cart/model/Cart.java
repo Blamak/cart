@@ -12,11 +12,6 @@ public class Cart {
     private List<ProductDTO> products;
     private LocalDateTime lastUpdated;
 
-    public Cart() {
-        this.products = new ArrayList<>();
-        this.lastUpdated = LocalDateTime.now();
-    }
-
     public Cart(String id) {
         this.id = id;
         this.products = new ArrayList<>();
@@ -27,16 +22,8 @@ public class Cart {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
 	public List<ProductDTO> getProducts() {
 		return products;
-	}
-
-	public void setProducts(List<ProductDTO> products) {
-		this.products = products;
 	}
 
 	public LocalDateTime getLastUpdated() {
