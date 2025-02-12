@@ -45,7 +45,7 @@ java -jar target/cart-0.0.1-SNAPSHOT.jar
 
 ### **🎯 Expected Outcome**
 - ✅ The application starts, and logs appear in the console.
-- ✅ The API is accessible at: **`http://localhost:8080/`**
+- ✅ The API is accessible at: **`http://localhost:9191/`**
 
 ---
 
@@ -53,8 +53,7 @@ java -jar target/cart-0.0.1-SNAPSHOT.jar
 The project already contains a `Dockerfile`, so you can directly build and run it.
 
 ### **📌 Prerequisites** ⚓
-- ✅ **Docker installed** and running  
-- ✅ The project is **built and packaged** as a JAR file (`mvn clean package`)
+- ✅ **Docker installed** and running
 
 ### **🐳 Steps to Run in Docker**
 #### **📦 Step 1: Build the Docker Image**
